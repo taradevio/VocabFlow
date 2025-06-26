@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "question": "What makes this app different from any other language learning apps?",
+    "answer": "Unlike tap-based learning or memorization apps, we focus on using vocabulary, not just recognizing it. You’ll write your own sentences, get feedback, and receive reminders — so the words stick long-term."
+  },
+  {
+    "id": 2,
+    "question": "Can I add any word I want?",
+    "answer": "Yes! You build your own word bank — add new vocab anytime, and we’ll help you practice using it in sentences."
+  },
+  {
+    "id": 3,
+    "question": "How does the AI help me?",
+    "answer": "Our AI gives you writing prompts based on your saved words, then offers feedback on grammar and usage."
+  },
+  {
+    "id": 4,
+    "question": "Do I have to sign up to use the app?",
+    "answer": "No need to sign up right away. You can try it out first, and we’ll invite you to save your progress when you’re ready."
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "image": "/word-bank.png",
+    "title": "Personal Word Bank",
+    "description": "Add new vocab as you go, and organize them into your own word bank. Your words, your way — no generic lists, just what matters to you."
+  },
+  {
+    "id": 2,
+    "image": "/daily-reminder.png",
+    "title": "Daily Reminders",
+    "description": "Set gentle reminders that nudge you to review or practice your saved words. You control the time and frequency — we’ll take care of the memory jog."
+  },
+  {
+    "id": 3,
+    "image": "/practice.png",
+    "title": "Practice with Writing Prompts",
+    "description": "Get writing prompts and short exercises tailored to your saved words, so you can actually use them — not just recognize them."
+  },
+  {
+    "id": 4,
+    "image": "/correction.png",
+    "title": "Grammar Correction",
+    "description": "AI checks your writing, corrects grammar, and suggests better sentences — so you can practice with confidence."
+  }
+]
