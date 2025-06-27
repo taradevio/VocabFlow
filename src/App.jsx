@@ -7,7 +7,7 @@ import { CTA } from "./components/CTA";
 
 function App() {
   return (
-    <div className="ps-3 pe-3">
+    <div className="ps-3 pe-3 max-w-7xl">
       <Navbar />
       <Hero />
       <Features />

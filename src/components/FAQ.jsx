@@ -40,14 +40,14 @@ const GetQuestions = () => {
     <section>
       {error && <p>{error.message}</p>}
       <div>
-        <h2 className="text-2xl font-bold text-center">
+        <h2 className="text-2xl sm:text-6xl font-bold text-center pb-5">
           Frequently Asked Questions
         </h2>
         {data?.map((item, index) => (
           <div
             key={item.id}
             onClick={() => toggle(index)}
-            className="border-b-1 my-3 cursor-pointer bg-[#4F46E5] text-white rounded-md"
+            className="border-b-1 my-5 cursor-pointer bg-[#4F46E5] text-white rounded-md sm:w-2xl sm:mx-auto"
           >
             <div className="p-4">
               <p className="font-semibold">{item.question}</p>
