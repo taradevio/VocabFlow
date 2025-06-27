@@ -39,7 +39,7 @@ const GetFeatures = () => {
           {data?.map((item, index) => (
             <div key={item.id} className={`pt-8 sm:flex ${index % 2 !== 0 ? "sm:flex-row" : "sm:flex-row-reverse"} sm:item-center sm:justify-center sm:gap-15`}>
               <div className="text-center pb-5 sm:w-md sm:content-center">
-                <h3 className="text-xl font-semibold pb-1 sm:text-3xl">{item.title}</h3>
+                <h3 className="text-xl font-bold pb-1 sm:text-3xl">{item.title}</h3>
                 <p>{item.description}</p>
               </div>
               <div className="sm:w-xs">
