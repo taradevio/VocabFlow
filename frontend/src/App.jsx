@@ -1,3 +1,4 @@
+import "@radix-ui/themes/styles.css";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
@@ -7,14 +8,16 @@ import { CTA } from "./components/CTA";
 
 function App() {
   return (
-    <div className="ps-3 pe-3 max-w-7xl">
-      <Navbar />
-      <Hero />
-      <Features />
-      <Benefits />
-      <Questions />
-      <CTA />
-    </div>
+    <Theme>
+      <div className="ps-3 pe-3 max-w-7xl">
+        <Navbar />
+        <Hero />
+        <Features />
+        <Benefits />
+        <Questions />
+        <CTA />
+      </div>
+    </Theme>
   );
 }
 

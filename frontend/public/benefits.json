@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "icon": "/repetition.svg",
+    "title": "Spaced Repetition",
+    "description": "Review words at scientifically-optimized intervals to move them into long-term memory."
+  },
+  {
+    "id": 2,
+    "icon": "/write.svg",
+    "title": "Active Recall",
+    "description": "Instead of passive reading, you actively retrieve words from memory, strengthening neural pathways."
+  },
+  {
+    "id": 3,
+    "icon": "/feedback.png",
+    "title": "Corrective Feedback",
+    "description": "Get immediate corrections when you use words incorrectly, helping you learn the right way."
+  },
+  {
+    "id": 4,
+    "icon": "/idea.svg",
+    "title": "Personal Relevance",
+    "description": "Learn words that matter to you and your goals, making them more memorable and useful."
+  }
+]
