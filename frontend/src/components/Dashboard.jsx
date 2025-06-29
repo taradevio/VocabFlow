@@ -1,11 +1,12 @@
+import { Content } from "./ui/ContentPanel";
+import { Sidebar } from "./ui/Sidebar";
+
 const Dashboard = () => {
   return (
-    <section>
-      <div>this is dashboard</div>
-      <p>dashboard</p>
-      <h2>hello from dashboard again</h2>
-      <p>this is dashboard</p>
-    </section>
+    <div className="flex h-dvh w-full max-w-7xl">
+      <Sidebar />
+      <Content />
+    </div>
   );
 };
 
