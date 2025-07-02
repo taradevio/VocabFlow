@@ -1,6 +1,11 @@
+import { Button, Badge } from "@radix-ui/themes";
+
 export const WordBank = () => {
   const getWords = JSON.parse(localStorage.getItem("user"));
-  console.log(getWords);
+  const getTotalWords = getWords ? Object.keys(getWords).length : 0;
+
+  const getFirst = getWords[0].word;
+  console.log(getFirst.charAt(0).toUpperCase())
 
   return (
     <div className="ps-5 pe-5 my-5">
@@ -10,7 +15,9 @@ export const WordBank = () => {
           <p>Your Personal Vocabularies Collection</p>
         </div>
         <div>
-          <span className="block text-end">0</span>
+          <span className="block text-end text-4xl font-bold">
+            {getTotalWords}
+          </span>
           <p>Total Words</p>
         </div>
       </div>
@@ -44,37 +51,43 @@ export const WordBank = () => {
           </form>
         </div>
         <div className="p-1 flex gap-2">
-          <button className="border-1 py-1 px-2 rounded-md">All</button>
-          <button className="border-1 py-1 px-2 rounded-md">Easy</button>
-          <button className="border-1 py-1 px-2 rounded-md">Medium</button>
-          <button className="border-1 py-1 px-2 rounded-md">Hard</button>
+          <Button>All</Button>
+          <Button>Beginner</Button>
+          <Button>Intermediate</Button>
+          <Button>Advanced</Button>
         </div>
       </div>
 
       {getWords ? (
-        <div className="grid grid-cols-3 gap-5 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-8">
           {getWords?.map((word, index) => (
             <div key={index} className="border-1 rounded-md p-5">
               <div className="flex items-center justify-between">
-                <h3>{word.word}</h3>
+                <h3 className="font-semibold">{word.word.charAt(0).toUpperCase() + word.word.slice(1)}</h3>
                 <div>
-                  <span>Medium</span>
+                  <Badge color="tomato">Advanced</Badge>
                 </div>
               </div>
-
-              <p>
-                A word with meaning related to dd. This definition was generated
-                automatically.
+              <div>
+                <Badge color="bronze">Verb</Badge>
+              </div>
+              <p className="text-[#666666] text-sm py-3">
+                Having a ready insight into and understanding of things; showing
+                acute mental discernment.
               </p>
-              <div>
-                <p>"Example usage of the word "dd" in a sentence."</p>
+              <div className="bg-[#f4f5f4] text-xs p-3 italic">
+                <p>
+                  "Her perspicacious analysis of the market trends impressed the
+                  entire board."
+                </p>
               </div>
-              <div>
-                <p>Added on</p>
+              <div className="pt-3">
+                <p className="text-xs">📅 Added on {word.added_on}</p>
               </div>
+              <hr className="my-3" />
               <div className="flex items-center justify-between mt-2">
                 <div>
-                  <button className="border-1 py-1 px-2 rounded-md">Practice</button>
+                  <Button>Practice</Button>
                 </div>
                 <div className="cursor-pointer">
                   <img src="/delete.svg" alt="delete" />

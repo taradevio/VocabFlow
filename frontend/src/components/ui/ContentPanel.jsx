@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import { Toaster } from "sonner";
 
 export const Content = () => {
   return (
@@ -9,6 +10,8 @@ export const Content = () => {
             <img src="https://images.pexels.com/photos/1553963/pexels-photo-1553963.jpeg" alt="image" className="w-full object-cover" />
         </div> */}
         <Outlet />
+        <Toaster expand={true} richColors />
+
       </div>
     </section>
   );
