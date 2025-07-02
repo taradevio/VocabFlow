@@ -1,11 +1,20 @@
-import { Button, Badge } from "@radix-ui/themes";
+import { Button, Badge, TextField } from "@radix-ui/themes";
+import { useState } from "react";
 
 export const WordBank = () => {
+  const [getIndex, setGetIndex] = useState(0);
   const getWords = JSON.parse(localStorage.getItem("user"));
   const getTotalWords = getWords ? Object.keys(getWords).length : 0;
 
-  const getFirst = getWords[0].word;
-  console.log(getFirst.charAt(0).toUpperCase())
+  const handleDelete = (value) => {
+    // if (value === getIndex) {
+    //   const filteredWords = getWords.filter((_, index) => index !== value);
+    //   localStorage.setItem("user", JSON.stringify(filteredWords));
+    //   return filteredWords;
+    // }
+
+    console.log(value);
+  };
 
   return (
     <div className="ps-5 pe-5 my-5">
@@ -38,18 +47,24 @@ export const WordBank = () => {
       </div>
 
       <div className="flex justify-between items-center p-3 border-1 rounded-md gap-2">
-        <div className="flex-1">
-          <form className="relative">
-            <div className="absolute top-[50%] left-2 translate-y-[-50%]">
+        <TextField.Root placeholder="Search word..." className="w-full">
+          <TextField.Slot>
+            <div className="">
               <img src="/search.svg" alt="search" />
             </div>
+          </TextField.Slot>
+        </TextField.Root>
+
+        {/* <div className="flex-1">
+          <form className="relative">
+            
             <input
               type="text"
               className="border-1 w-full py-1 px-8 rounded-md"
               placeholder="Search words"
             />
           </form>
-        </div>
+        </div> */}
         <div className="p-1 flex gap-2">
           <Button>All</Button>
           <Button>Beginner</Button>
@@ -61,9 +76,15 @@ export const WordBank = () => {
       {getWords ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-8">
           {getWords?.map((word, index) => (
-            <div key={index} className="border-1 rounded-md p-5">
+            <div
+              key={index}
+              className="border-1 rounded-md p-5"
+              onClick={() => setGetIndex(index)}
+            >
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">{word.word.charAt(0).toUpperCase() + word.word.slice(1)}</h3>
+                <h3 className="font-semibold">
+                  {word.word.charAt(0).toUpperCase() + word.word.slice(1)}
+                </h3>
                 <div>
                   <Badge color="tomato">Advanced</Badge>
                 </div>
@@ -89,7 +110,12 @@ export const WordBank = () => {
                 <div>
                   <Button>Practice</Button>
                 </div>
-                <div className="cursor-pointer">
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    handleDelete(index);
+                  }}
+                >
                   <img src="/delete.svg" alt="delete" />
                 </div>
               </div>
