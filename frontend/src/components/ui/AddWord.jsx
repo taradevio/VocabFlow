@@ -1,6 +1,9 @@
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Button, Dialog, TextArea, Flex, Text } from "@radix-ui/themes";
+import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-query";
+
+const queryClient = new QueryClient()
 
 export const AddWord = () => {
   const [word, setWord] = useState("");
