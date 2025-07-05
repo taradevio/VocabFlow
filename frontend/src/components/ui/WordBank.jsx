@@ -93,13 +93,11 @@ export const WordBank = () => {
                 <Badge color="bronze">Verb</Badge>
               </div>
               <p className="text-[#666666] text-sm py-3">
-                Having a ready insight into and understanding of things; showing
-                acute mental discernment.
+                {word.definition}
               </p>
               <div className="bg-[#f4f5f4] text-xs p-3 italic">
                 <p>
-                  "Her perspicacious analysis of the market trends impressed the
-                  entire board."
+                  {word.example}
                 </p>
               </div>
               <div className="pt-3">

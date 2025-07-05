@@ -1,5 +1,6 @@
 import { Switch, TextField } from "@radix-ui/themes";
 import { useState } from "react";
+import { Button } from "@radix-ui/themes";
 
 export const Settings = () => {
   const [isActive, setIsActve] = useState(false);
@@ -16,7 +17,9 @@ export const Settings = () => {
           <div className="mt-5 flex justify-between items-center">
             <div>
               <h4 className="font-semibold text-md">Email Reminder</h4>
-              <p className="text-sm">Get reminders sent to your email address</p>
+              <p className="text-sm">
+                Get reminders sent to your email address
+              </p>
             </div>
             <div>
               <Switch onClick={() => setIsActve(!isActive)} />

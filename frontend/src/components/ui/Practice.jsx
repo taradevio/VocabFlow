@@ -58,7 +58,7 @@ export const Practice = () => {
         </form>
       </div>
 
-      {/* number of words will only appear if words are more than 5 and multiplication of 5 e. g 10, 15, 20 */}
+      {/* number of words will only appear if words are more than 5 and multiplication of 5 e. g 10, 15, 20, else, just null it*/}
       <div className="mt-5">
         <h3 className="font-semibold text-md">Number of words</h3>
         <p className="text-sm">Number of words you want to practice</p>
