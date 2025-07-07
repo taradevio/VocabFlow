@@ -35,12 +35,92 @@ const GetWord = () => {
   const [isLoadingExample, setIsLoadingExample] = useState(false);
   const [definition, setDefinition] = useState("");
   const [example, setExample] = useState("");
+  // const [difficulty, setDifficulty] = useState("");
+  // const [partsOfSpeech, setPartsOfSpeech] = useState("");
+  // const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
 
   useEffect(() => {
     // on mount check local storage and get the words
     const getItems = JSON.parse(localStorage.getItem("user")) || [];
     setWordBank(getItems);
   }, []);
+
+  // const { mutateAsync: generateMetadata } = useMutation({
+  //   mutationFn: async (word) => {
+  //     const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         // the structure below has to be the same as defined in openrouter
+  //         message: [
+  //           {
+  //             role: "user",
+  //             content: `Analyze the word "${word}" and return a JSON object with: "difficulty" (Beginner, Intermediate, or Advanced), and "partOfSpeech" (noun, verb, adjective, etc.). No explanation.`,
+  //           },
+  //         ],
+  //       }),
+  //     });
+
+  //     const reader = response.body?.getReader();
+  //     if (!reader) {
+  //       console.error("No reader found on response");
+  //       throw new Error("No response body");
+  //     }
+  //     const decoder = new TextDecoder();
+  //     let buffer = "";
+  //     let result = "";
+
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+
+  //       buffer += decoder.decode(value, { stream: true });
+
+  //       let lineEnd;
+  //       while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+  //         const line = buffer.slice(0, lineEnd).trim();
+  //         buffer = buffer.slice(lineEnd + 1);
+
+  //         if (line.startsWith("data: ")) {
+  //           const json = line.slice(6);
+  //           if (json === "[DONE]") break;
+
+  //           try {
+  //             const parsed = JSON.parse(json);
+  //             const content = parsed.choices?.[0]?.delta?.content;
+  //             if (content) {
+  //               result += content;
+  //             }
+  //           } catch (err) {
+  //             console.warn("Failed to parse chunk:", err);
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     try {
+  //       const metadata = JSON.parse(result);
+  //       return metadata;
+  //     } catch (err) {
+  //       console.error("Failed to parse metadata:", err);
+  //     }
+  //   },
+  //   onMutate: () => {
+  //     setIsLoadingMetadata(true);
+  //     setDifficulty("");
+  //     setPartsOfSpeech("");
+  //   },
+  //   onSuccess: () => {
+  //     setIsLoadingMetadata(false);
+  //     toast.success("Metadata sucessfully generated!");
+  //   },
+  //   onError: (err) => {
+  //     console.error("Failed fetching:", err);
+  //     toast.error("Failed to fetch definition");
+  //   },
+  // });
 
   // mutation for definition
   const { mutate: generateDefinition } = useMutation({
@@ -52,7 +132,7 @@ const GetWord = () => {
         },
         body: JSON.stringify({
           // the structure below has to be the same as defined in openrouter
-          message: [
+          messages: [
             {
               role: "user",
               content: `Give a simple, clear definition of the word "${word}" like in a dictionary without mentioning back the given word. No example and no * symbol`,
@@ -125,7 +205,7 @@ const GetWord = () => {
         },
         body: JSON.stringify({
           // the structure below has to be the same as defined in openrouter
-          message: [
+          messages: [
             {
               role: "user",
               content: `Give a sentence example of the given word "${word}" and no additional * symbol.`,
@@ -181,6 +261,7 @@ const GetWord = () => {
     },
     onSuccess: () => {
       setIsLoadingExample(false);
+      console.log(example)
       toast.success("Example sucessfully generated!");
     },
     onError: (err) => {
@@ -190,7 +271,6 @@ const GetWord = () => {
   });
 
   function addWord() {
-    // when use users add word, don't save it to storage first untill all definitions and examples are all complete
     const getUserData = word.trim().toLowerCase();
     setShowWord(getUserData);
     // add object structure

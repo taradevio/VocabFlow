@@ -1,11 +1,16 @@
 import { Switch, Checkbox, Button, Tooltip } from "@radix-ui/themes";
 import { useState } from "react";
+import { Outlet } from "react-router";
+// use usenavigate when you want to move to another page, but to move there, it needs to be wrapped inside a logic, like function, onclick, etc
+import { useNavigate } from "react-router";
 
 export const Practice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEasy, setIsEasy] = useState(false);
   const [isMedium, setIsMedium] = useState(false);
   const [isHard, setIsHard] = useState(false);
+  // use usenavigate to move to another page
+  const navigate = useNavigate();
 
   return (
     <div className="rounded-md p-5">
@@ -86,10 +91,13 @@ export const Practice = () => {
       <div className="flex justify-between gap-2 mt-5 w-full">
         <Button>Cancel</Button>
 
+        {/* when users click the start practice, ai will generate the prompt of what the users should write in the practice area */}
         <Button
           onClick={() => {
             setIsLoading(true);
             setTimeout(() => {
+              // call navigate to practice area. the practice area below is the name of the endpoint created in main.jsx
+              navigate("practice-area");
               setIsLoading(false);
             }, 1000);
           }}
@@ -98,6 +106,8 @@ export const Practice = () => {
           Start Practice
         </Button>
       </div>
+
+      <Outlet />
     </div>
   );
 };

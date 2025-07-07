@@ -23,6 +23,7 @@ export const fetchOpenRouter = async (
   onChunk: (text: string) => void
   // there is no need to use Promise:<ChatAPIResponse since this file will only act as a relay. The OpenRouter API will be forwarded through Hono stream>. Even so, no deletion since async basically returns a promise and this below is just how typescript is written
 ): Promise<void> => {
+
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
     {
@@ -35,12 +36,6 @@ export const fetchOpenRouter = async (
         model: "google/gemma-3n-e4b-it:free",
         messages,
         stream: true,
-        //   messages: [
-        //     {
-        //       role: "user",
-        //       content: "What is absolute possessive and what are the examples?",
-        //     },
-        //   ],
       }),
     }
   );
@@ -84,11 +79,11 @@ export const fetchOpenRouter = async (
     reader.cancel();
   }
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Failed fetching API Router:", errorText);
-    throw new Error("Failed to fetch API response");
-  }
+  // if (!response.ok) {
+  //   const errorText = await response.text();
+  //   console.error("Failed fetching API Router:", errorText);
+  //   throw new Error("Failed to fetch API response");
+  // }
 
   // in js, we can just return the response without adding *as CHATAPIRESPONSE*
   // const req = (await response.json()) as ChatAPIResponse;

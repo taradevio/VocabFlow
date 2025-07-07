@@ -86,11 +86,11 @@ export const WordBank = () => {
                   {word.word.charAt(0).toUpperCase() + word.word.slice(1)}
                 </h3>
                 <div>
-                  <Badge color="tomato">Advanced</Badge>
+                  <Badge color="tomato">easy</Badge>
                 </div>
               </div>
               <div>
-                <Badge color="bronze">Verb</Badge>
+                <Badge color="bronze">verb</Badge>
               </div>
               <p className="text-[#666666] text-sm py-3">
                 {word.definition}
