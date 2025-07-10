@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 
 export const Content = () => {
   return (
-    <section className="h-full flex-1 overflow-auto">
+    <section className="h-full lg:flex-1 lg:overflow-auto">
       {/* put width full doesnt work using div bellow since it has not fixed width. Applying flex-1 doesnt either, so put the flex in section */}
       <div className="">
         {/* <div className="">

@@ -26,8 +26,8 @@ export const Sidebar = () => {
   // ];
 
   return (
-    <section>
-      <div className="w-[250px] h-full text-center flex flex-col">
+    <section className="">
+      <div className="w-[250px] h-full text-center flex-col hidden lg:flex">
         <div className="py-5 px-2 border-b-1 border-r-1">
           <Link to="/">Logo</Link>
         </div>

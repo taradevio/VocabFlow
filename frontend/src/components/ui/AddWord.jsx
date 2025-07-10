@@ -35,9 +35,11 @@ const GetWord = () => {
   const [isLoadingExample, setIsLoadingExample] = useState(false);
   const [definition, setDefinition] = useState("");
   const [example, setExample] = useState("");
-  // const [difficulty, setDifficulty] = useState("");
-  // const [partsOfSpeech, setPartsOfSpeech] = useState("");
-  // const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
+  const [difficulty, setDifficulty] = useState("");
+  const [partsOfSpeech, setPartsOfSpeech] = useState("");
+  const [isLoadingDifficulty, setIsLoadingDifficulty] = useState(false);
+  const [isLoadingPartsOfSpeech, setIsLoadingPartsOfSpeech] =useState(false);
+    useState(false);
 
   useEffect(() => {
     // on mount check local storage and get the words
@@ -45,82 +47,155 @@ const GetWord = () => {
     setWordBank(getItems);
   }, []);
 
-  // const { mutateAsync: generateMetadata } = useMutation({
-  //   mutationFn: async (word) => {
-  //     const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         // the structure below has to be the same as defined in openrouter
-  //         message: [
-  //           {
-  //             role: "user",
-  //             content: `Analyze the word "${word}" and return a JSON object with: "difficulty" (Beginner, Intermediate, or Advanced), and "partOfSpeech" (noun, verb, adjective, etc.). No explanation.`,
-  //           },
-  //         ],
-  //       }),
-  //     });
+  
 
-  //     const reader = response.body?.getReader();
-  //     if (!reader) {
-  //       console.error("No reader found on response");
-  //       throw new Error("No response body");
-  //     }
-  //     const decoder = new TextDecoder();
-  //     let buffer = "";
-  //     let result = "";
+  // generate difficulty
+  const { mutateAsync: generateDifficulty } = useMutation({
+    mutationFn: async (word) => {
+      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // the structure below has to be the same as defined in openrouter
+          messages: [
+            {
+              role: "user",
+              content: `"Analyze the word '${word}' and classify its difficulty level for ESL learners. Return ONLY one of: Beginner, Intermediate, Advanced. Use these rules: 1.Beginner: Common words used in daily conversation, 2.Intermediate: Less common but used in academic or professional contexts, 3.Advanced: Rare, literary, or formal vocabulary not used in casual speech."`,
+            },
+          ],
+        }),
+      });
 
-  //     while (true) {
-  //       const { done, value } = await reader.read();
-  //       if (done) break;
+      const reader = response.body?.getReader();
+      if (!reader) {
+        console.error("No reader found on response");
+        throw new Error("No response body");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let result = "";
 
-  //       buffer += decoder.decode(value, { stream: true });
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-  //       let lineEnd;
-  //       while ((lineEnd = buffer.indexOf("\n")) !== -1) {
-  //         const line = buffer.slice(0, lineEnd).trim();
-  //         buffer = buffer.slice(lineEnd + 1);
+        buffer += decoder.decode(value, { stream: true });
 
-  //         if (line.startsWith("data: ")) {
-  //           const json = line.slice(6);
-  //           if (json === "[DONE]") break;
+        let lineEnd;
+        while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, lineEnd).trim();
+          buffer = buffer.slice(lineEnd + 1);
 
-  //           try {
-  //             const parsed = JSON.parse(json);
-  //             const content = parsed.choices?.[0]?.delta?.content;
-  //             if (content) {
-  //               result += content;
-  //             }
-  //           } catch (err) {
-  //             console.warn("Failed to parse chunk:", err);
-  //           }
-  //         }
-  //       }
-  //     }
+          if (line.startsWith("data: ")) {
+            const json = line.slice(6);
+            if (json === "[DONE]") break;
 
-  //     try {
-  //       const metadata = JSON.parse(result);
-  //       return metadata;
-  //     } catch (err) {
-  //       console.error("Failed to parse metadata:", err);
-  //     }
-  //   },
-  //   onMutate: () => {
-  //     setIsLoadingMetadata(true);
-  //     setDifficulty("");
-  //     setPartsOfSpeech("");
-  //   },
-  //   onSuccess: () => {
-  //     setIsLoadingMetadata(false);
-  //     toast.success("Metadata sucessfully generated!");
-  //   },
-  //   onError: (err) => {
-  //     console.error("Failed fetching:", err);
-  //     toast.error("Failed to fetch definition");
-  //   },
-  // });
+            try {
+              const parsed = JSON.parse(json);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                result += content;
+                // below is called batching in react
+                setDefinition((prev) => prev + content);
+              }
+            } catch (err) {
+              console.warn("Failed to parse chunk:", err);
+            }
+          }
+        }
+      }
+
+      return result;
+    },
+    onMutate: () => {
+      setIsLoadingDifficulty(true);
+      setDifficulty("");
+    },
+    onSuccess: () => {
+      setIsLoadingDifficulty(false);
+      toast.success("Difficulty sucessfully generated!");
+    },
+    onError: (err) => {
+      console.error("Failed fetching:", err);
+      toast.error("Failed to fetch definition");
+    },
+  });
+
+  // generate parts of speech
+  const { mutateAsync: generatePartsOfSpeech } = useMutation({
+    mutationFn: async (word) => {
+      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // the structure below has to be the same as defined in openrouter
+          messages: [
+            {
+              role: "user",
+              content: `Analyze the word ${word}. Return its part(s) of speech based on common modern usage.If the word has only one common part of speech, return just that. If it has multiple equally common parts of speech, return all of them. Do not include definitions or explanations`,
+            },
+          ],
+        }),
+      });
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        console.error("No reader found on response");
+        throw new Error("No response body");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let result = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let lineEnd;
+        while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, lineEnd).trim();
+          buffer = buffer.slice(lineEnd + 1);
+
+          if (line.startsWith("data: ")) {
+            const json = line.slice(6);
+            if (json === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(json);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                result += content;
+                // below is called batching in react
+                setDefinition((prev) => prev + content);
+              }
+            } catch (err) {
+              console.warn("Failed to parse chunk:", err);
+            }
+          }
+        }
+      }
+
+      return result;
+    },
+    onMutate: () => {
+      setIsLoadingPartsOfSpeech(true);
+      setPartsOfSpeech("");
+    },
+    onSuccess: () => {
+      setIsLoadingPartsOfSpeech(false);
+      toast.success("Parts of Speech sucessfully generated!");
+    },
+    onError: (err) => {
+      console.error("Failed fetching:", err);
+      toast.error("Failed to fetch definition");
+    },
+  });
 
   // mutation for definition
   const { mutate: generateDefinition } = useMutation({
@@ -261,7 +336,6 @@ const GetWord = () => {
     },
     onSuccess: () => {
       setIsLoadingExample(false);
-      console.log(example)
       toast.success("Example sucessfully generated!");
     },
     onError: (err) => {
@@ -321,34 +395,42 @@ const GetWord = () => {
     }, 500);
   }
 
-  function addDefinition() {
-    // get the words from words stored in array
-    const getWordBank = [...wordBank];
-    // map the array, then if the current word matches with the word stored, return the existing word and add definition generated by AI saved inside definition state
-    const update = getWordBank.map((word) => {
-      if (word.word === showWord) {
-        return {
-          ...word,
-          definition: definition,
-          example: example,
-        };
-      } else {
-        return word;
-      }
-    });
+  async function addDefinition() {
+    try {
+      const addDifficulty = await generateDifficulty(showWord);
+      const addPartsOfSpeech = await generatePartsOfSpeech(showWord);
+      // get the words from words stored in array
+      const getWordBank = [...wordBank];
+      // map the array, then if the current word matches with the word stored, return the existing word and add definition generated by AI saved inside definition state
+      const update = getWordBank.map((word) => {
+        if (word.word === showWord) {
+          return {
+            ...word,
+            definition: definition,
+            example: example,
+            difficulty: addDifficulty.trim(),
+            partsOfSpeech: addPartsOfSpeech.trim(),
+          };
+        } else {
+          return word;
+        }
+      });
 
-    // update the word bank
-    setWordBank(update);
-    // update the local storage
-    localStorage.setItem("user", JSON.stringify(update));
-    toast.success("Definition and example added successfully!");
+      // update the word bank
+      setWordBank(update);
+      // update the local storage
+      localStorage.setItem("user", JSON.stringify(update));
+      toast.success("Definition and example added successfully!");
+    } catch (error) {
+      console.error("error creating metadata", error);
+    }
 
     // if the word is random and not found in english, return undefined in the output of definition, then when users click ok, the logic needs to match if the value inside the input of definition is undefined. If it is, the users won't be able to save
   }
 
   return (
-    <div className="grid place-content-center h-dvh relative">
-      <div className="border-2 p-10 text-center w-3xl rounded-md">
+    <div className="sm:grid sm:place-content-center sm:h-dvh relative">
+      <div className="border-2 p-10 text-center w-fit sm:w-3xl rounded-md">
         <h1 className="text-5xl">Add Your Word</h1>
         <p className="mt-3 mb-10">
           Enter your word and lets AI generate the definition for you

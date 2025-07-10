@@ -17,7 +17,7 @@ export const WordBank = () => {
   };
 
   return (
-    <div className="ps-5 pe-5 my-5">
+    <div className="lg:ps-5 lg:pe-5 my-5">
       <div className="flex items-center justify-between border-1 rounded-lg p-3">
         <div>
           <h2 className="text-2xl font-semibold">Word Bank</h2>
@@ -46,7 +46,7 @@ export const WordBank = () => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center p-3 border-1 rounded-md gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-center p-3 border-1 rounded-md gap-2">
         <TextField.Root placeholder="Search word..." className="w-full">
           <TextField.Slot>
             <div className="">
@@ -65,7 +65,7 @@ export const WordBank = () => {
             />
           </form>
         </div> */}
-        <div className="p-1 flex gap-2">
+        <div className="p-1 flex flex-wrap justify-center gap-2">
           <Button>All</Button>
           <Button>Beginner</Button>
           <Button>Intermediate</Button>
@@ -74,7 +74,7 @@ export const WordBank = () => {
       </div>
 
       {getWords ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
           {getWords?.map((word, index) => (
             <div
               key={index}
@@ -86,11 +86,11 @@ export const WordBank = () => {
                   {word.word.charAt(0).toUpperCase() + word.word.slice(1)}
                 </h3>
                 <div>
-                  <Badge color="tomato">easy</Badge>
+                  <Badge color="iris">{word.difficulty}</Badge>
                 </div>
               </div>
               <div>
-                <Badge color="bronze">verb</Badge>
+                <Badge color="bronze">{word.partsOfSpeech}</Badge>
               </div>
               <p className="text-[#666666] text-sm py-3">
                 {word.definition}
