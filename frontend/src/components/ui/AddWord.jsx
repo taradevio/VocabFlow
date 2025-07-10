@@ -391,7 +391,6 @@ const GetWord = () => {
       setIsLoading(false);
       // clear input
       setWord("");
-      setDefinition("");
     }, 500);
   }
 
@@ -418,6 +417,8 @@ const GetWord = () => {
 
       // update the word bank
       setWordBank(update);
+      setDefinition("");
+      setExample("")
       // update the local storage
       localStorage.setItem("user", JSON.stringify(update));
       toast.success("Definition and example added successfully!");
