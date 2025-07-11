@@ -38,16 +38,15 @@ const GetWord = () => {
   const [difficulty, setDifficulty] = useState("");
   const [partsOfSpeech, setPartsOfSpeech] = useState("");
   const [isLoadingDifficulty, setIsLoadingDifficulty] = useState(false);
-  const [isLoadingPartsOfSpeech, setIsLoadingPartsOfSpeech] =useState(false);
-    useState(false);
+  const [isLoadingPartsOfSpeech, setIsLoadingPartsOfSpeech] = useState(false);
+  const [finalLoading, setFinalLoading] = useState(false);
+  useState(false);
 
   useEffect(() => {
     // on mount check local storage and get the words
     const getItems = JSON.parse(localStorage.getItem("user")) || [];
     setWordBank(getItems);
   }, []);
-
-  
 
   // generate difficulty
   const { mutateAsync: generateDifficulty } = useMutation({
@@ -344,6 +343,79 @@ const GetWord = () => {
     },
   });
 
+  //  const { mutate: validateWord } = useMutation({
+  //   mutationFn: async (word) => {
+  //     const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         // the structure below has to be the same as defined in openrouter
+  //         messages: [
+  //           {
+  //             role: "user",
+  //             content: `Analyze the word ${word}. If it cannot be found or is considered a random word, return undefined. If it's a typo, fix the typo and return the correct spelling.`,
+  //           },
+  //         ],
+  //       }),
+  //     });
+
+  //     const reader = response.body?.getReader();
+  //     if (!reader) {
+  //       console.error("No reader found on response");
+  //       throw new Error("No response body");
+  //     }
+  //     const decoder = new TextDecoder();
+  //     let buffer = "";
+  //     let result = "";
+
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+
+  //       buffer += decoder.decode(value, { stream: true });
+
+  //       let lineEnd;
+  //       while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+  //         const line = buffer.slice(0, lineEnd).trim();
+  //         buffer = buffer.slice(lineEnd + 1);
+
+  //         if (line.startsWith("data: ")) {
+  //           const json = line.slice(6);
+  //           if (json === "[DONE]") break;
+
+  //           try {
+  //             const parsed = JSON.parse(json);
+  //             const content = parsed.choices?.[0]?.delta?.content;
+  //             if (content) {
+  //               result += content;
+  //               // below is called batching in react
+  //               setExample((prev) => prev + content);
+  //             }
+  //           } catch (err) {
+  //             console.warn("Failed to parse chunk:", err);
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     return result;
+  //   },
+  //   onMutate: () => {
+  //     setIsLoadingExample(true);
+  //     setExample("");
+  //   },
+  //   onSuccess: () => {
+  //     setIsLoadingExample(false);
+  //     toast.error("Word you entered cannot be found");
+  //   },
+  //   onError: (err) => {
+  //     console.error("Failed fetching:", err);
+  //     toast.error("Failed to fetch example");
+  //   },
+  // });
+
   function addWord() {
     const getUserData = word.trim().toLowerCase();
     setShowWord(getUserData);
@@ -360,7 +432,17 @@ const GetWord = () => {
     if (!userStructure.word) {
       setIsLoading(true);
       setTimeout(() => {
-        toast.error("Cannot be empty!");
+        toast.error("Cannot be  empty!");
+        setIsOpen(false);
+        setIsLoading(false);
+      }, 200);
+      return;
+    }
+
+    if(userStructure.word === 'undefined') {
+      setIsLoading(true);
+      setTimeout(() => {
+        toast.error("Word cannot be found");
         setIsOpen(false);
         setIsLoading(false);
       }, 200);
@@ -418,7 +500,7 @@ const GetWord = () => {
       // update the word bank
       setWordBank(update);
       setDefinition("");
-      setExample("")
+      setExample("");
       // update the local storage
       localStorage.setItem("user", JSON.stringify(update));
       toast.success("Definition and example added successfully!");
@@ -476,24 +558,25 @@ const GetWord = () => {
                       Definition:
                     </Text>
                     <div className="relative">
-                      {isLoadingDefinition ? (
-                        <Spinner />
-                      ) : (
-                        <TextArea
-                          placeholder="Add the word's definition manually or generate with AI"
-                          value={definition}
-                          resize="vertical"
-                          onChange={(e) => {
-                            setDefinition(e.target.value);
-                          }}
-                        />
-                      )}
+                      <TextArea
+                        placeholder="Add the word's definition manually or generate with AI"
+                        value={definition}
+                        resize="vertical"
+                        onChange={(e) => {
+                          setDefinition(e.target.value);
+                        }}
+                      />
+
                       <div className="absolute bottom-2 right-2 cursor-pointer">
-                        <img
-                          src="/ai.svg"
-                          alt="ai icon"
-                          onClick={() => generateDefinition(showWord)}
-                        />
+                        {isLoadingDefinition ? (
+                          <Spinner />
+                        ) : (
+                          <img
+                            src="/ai.svg"
+                            alt="ai icon"
+                            onClick={() => generateDefinition(showWord)}
+                          />
+                        )}
                       </div>
                     </div>
                   </label>
@@ -504,32 +587,41 @@ const GetWord = () => {
                       Examples:
                     </Text>
                     <div className="relative">
-                      {isLoadingExample ? (
-                        <Spinner />
-                      ) : (
-                        <TextArea
-                          placeholder="Enter an example manually or generate with AI"
-                          value={example}
-                          resize="vertical"
-                          onChange={(e) => {
-                            setExample(e.target.value);
-                          }}
-                        />
-                      )}
+                      <TextArea
+                        placeholder="Enter an example manually or generate with AI"
+                        value={example}
+                        resize="vertical"
+                        onChange={(e) => {
+                          setExample(e.target.value);
+                        }}
+                      />
                       <div className="absolute bottom-2 right-2 cursor-pointer">
-                        <img
-                          src="/ai.svg"
-                          alt="ai icon"
-                          onClick={() => generateExample(showWord)}
-                        />
+                        {isLoadingExample ? (
+                          <Spinner />
+                        ) : (
+                          <img
+                            src="/ai.svg"
+                            alt="ai icon"
+                            onClick={() => generateExample(showWord)}
+                          />
+                        )}
                       </div>
                     </div>
                   </label>
                 </Flex>
-                <div className="mt-3 w-full" onClick={() => setIsOpen(false)}>
+
+                <div className="mt-3 w-full">
                   <Flex justify="end" gap="5">
-                    <Button size="3" onClick={() => addDefinition()}>
-                      OK
+                    <Button
+                      size="3"
+                      onClick={async () => {
+                        setFinalLoading(true);
+                        await addDefinition();
+                        setFinalLoading(false);
+                        setIsOpen(false);
+                      }}
+                    >
+                      {finalLoading ? <Spinner /> : "OK"}
                     </Button>
                   </Flex>
                 </div>

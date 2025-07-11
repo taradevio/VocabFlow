@@ -154,7 +154,7 @@ const GeneratePractice = () => {
       <div className="mt-5">
         <div className="flex gap-1">
           <h3 className="font-semibold text-md">Difficulty level</h3>
-          <Tooltip content="Based on words' difficulty">
+          <Tooltip content="Based on words' difficulty. If you don't choose any difficulty, all words' will be mixed up by default">
             <img src="/information.svg" alt="information icon" />
           </Tooltip>
         </div>
@@ -266,7 +266,11 @@ const GeneratePractice = () => {
         <Button
           onClick={() => {
             setIsLoading(true);
-            setWords(shuffle);
+            if (isShuffle) {
+              setWords(shuffle);
+            } else {
+              setWords(getWords);
+            }
             setTimeout(() => {
               // call navigate to practice area. the practice area below is the name of the endpoint created in main.jsx
               navigate("practice-area");

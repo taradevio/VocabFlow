@@ -1,19 +1,26 @@
-import { Button, Badge, TextField } from "@radix-ui/themes";
+import { Button, Badge, TextField, Dialog } from "@radix-ui/themes";
 import { useState } from "react";
 
 export const WordBank = () => {
   const [getIndex, setGetIndex] = useState(0);
-  const getWords = JSON.parse(localStorage.getItem("user"));
+  const [isDelete, setIsDelete] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [getWords, setGetWords] = useState(() => {
+    return JSON.parse(localStorage.getItem("user"));
+  })
   const getTotalWords = getWords ? Object.keys(getWords).length : 0;
 
-  const handleDelete = (value) => {
-    // if (value === getIndex) {
-    //   const filteredWords = getWords.filter((_, index) => index !== value);
-    //   localStorage.setItem("user", JSON.stringify(filteredWords));
-    //   return filteredWords;
-    // }
+  const deleteDialog = () => {
+    setIsDelete(true);
+  };
 
-    console.log(value);
+  console.log(getIndex);
+  console.log(getWords);
+
+  const handleDelete = (value) => {
+    const filteredWords = getWords.filter((_, index) => index !== value);
+    localStorage.setItem("user", JSON.stringify(filteredWords));
+    setGetWords(filteredWords)
   };
 
   return (
@@ -73,7 +80,14 @@ export const WordBank = () => {
         </div>
       </div>
 
-      {getWords ? (
+      {getWords.length === 0 ? (
+        <div className="rounded-md border-1 w-full text-center p-8 mt-8">
+          <h3 className="text-2xl">No words yet</h3>
+          <p className="">
+            Start building your vocabulary by adding your first word!
+          </p>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
           {getWords?.map((word, index) => (
             <div
@@ -92,40 +106,52 @@ export const WordBank = () => {
               <div>
                 <Badge color="bronze">{word.partsOfSpeech}</Badge>
               </div>
-              <p className="text-[#666666] text-sm py-3">
-                {word.definition}
-              </p>
+              <p className="text-[#666666] text-sm py-3">{word.definition}</p>
               <div className="bg-[#f4f5f4] text-xs p-3 italic">
-                <p>
-                  {word.example}
-                </p>
+                <p>{word.example}</p>
               </div>
               <div className="pt-3">
                 <p className="text-xs">📅 Added on {word.added_on}</p>
               </div>
               <hr className="my-3" />
-              <div className="flex items-center justify-between mt-2">
-                <div>
-                  <Button>Practice</Button>
-                </div>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => {
-                    handleDelete(index);
-                  }}
-                >
-                  <img src="/delete.svg" alt="delete" />
-                </div>
+              <div className="flex justify-end items-center mt-2">
+                <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+                  <Dialog.Trigger>
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setGetIndex(index);
+                        deleteDialog();
+                      }}
+                    >
+                      <img src="/delete.svg" alt="delete" />
+                    </div>
+                  </Dialog.Trigger>
+                  {isDelete && (
+                    <Dialog.Content maxWidth="350px" aria-describedby={undefined}>
+                      <Dialog.Title className="text-center">
+                        Are you sure you want to delete this word?
+                      </Dialog.Title>
+                      <div className="flex justify-between pt-3">
+                        <Dialog.Close>
+                          <Button>No</Button>
+                        </Dialog.Close>
+                        <Button
+                          onClick={() => {
+                            handleDelete(getIndex);
+                            setIsOpen(false);
+                          }}
+                          color="crimson"
+                        >
+                          Yes
+                        </Button>
+                      </div>
+                    </Dialog.Content>
+                  )}
+                </Dialog.Root>
               </div>
             </div>
           ))}
-        </div>
-      ) : (
-        <div className="rounded-md border-1 w-full text-center p-8 mt-8">
-          <h3 className="text-2xl">No words yet</h3>
-          <p className="">
-            Start building your vocabulary by adding your first word!
-          </p>
         </div>
       )}
     </div>
