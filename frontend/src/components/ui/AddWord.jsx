@@ -96,8 +96,6 @@ const GetWord = () => {
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
                 result += content;
-                // below is called batching in react
-                setDefinition((prev) => prev + content);
               }
             } catch (err) {
               console.warn("Failed to parse chunk:", err);
@@ -106,7 +104,7 @@ const GetWord = () => {
         }
       }
 
-      return result;
+      return result.trim();
     },
     onMutate: () => {
       setIsLoadingDifficulty(true);
@@ -135,7 +133,7 @@ const GetWord = () => {
           messages: [
             {
               role: "user",
-              content: `Analyze the word ${word}. Return its part(s) of speech based on common modern usage.If the word has only one common part of speech, return just that. If it has multiple equally common parts of speech, return all of them. Do not include definitions or explanations`,
+              content: `Analyze the word ${word}. Return its part(s) of speech based on common modern usage.If the word has only one common part of speech, return just that. If it has multiple equally common parts of speech, return all of them with a comma. Do not include definitions or explanations`,
             },
           ],
         }),
@@ -170,8 +168,6 @@ const GetWord = () => {
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
                 result += content;
-                // below is called batching in react
-                setDefinition((prev) => prev + content);
               }
             } catch (err) {
               console.warn("Failed to parse chunk:", err);
@@ -180,7 +176,7 @@ const GetWord = () => {
         }
       }
 
-      return result;
+      return result.trim();
     },
     onMutate: () => {
       setIsLoadingPartsOfSpeech(true);
@@ -270,6 +266,7 @@ const GetWord = () => {
     },
   });
 
+  // generate example
   const { mutate: generateExample } = useMutation({
     mutationFn: async (word) => {
       const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
@@ -282,7 +279,7 @@ const GetWord = () => {
           messages: [
             {
               role: "user",
-              content: `Give a sentence example of the given word "${word}" and no additional * symbol.`,
+              content: `You are an academic English assistant. Given the word '${word}', return only its part(s) of speech and one example sentence for each part of speech in a clear bullet list. Do not include any explanations, formatting symbols (like * or >), definitions, or greetings. Only output the list. Be precise and factual. If the word has only one part of speech, list only that.`,
             },
           ],
         }),
@@ -343,141 +340,143 @@ const GetWord = () => {
     },
   });
 
-  //  const { mutate: validateWord } = useMutation({
-  //   mutationFn: async (word) => {
-  //     const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         // the structure below has to be the same as defined in openrouter
-  //         messages: [
-  //           {
-  //             role: "user",
-  //             content: `Analyze the word ${word}. If it cannot be found or is considered a random word, return undefined. If it's a typo, fix the typo and return the correct spelling.`,
-  //           },
-  //         ],
-  //       }),
-  //     });
+  // validate if no words are not found
+  const { mutateAsync: validateWord } = useMutation({
+    mutationFn: async (word) => {
+      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // the structure below has to be the same as defined in openrouter
+          messages: [
+            {
+              role: "user",
+              content: `You are an academic-level English word analyzer. Given the word '${word}', perform the following: If the word is not recognized in English (i.e., a random string or non-existent word), return only: undefined (no quotes, no explanation, no formatting). If the word appears to be a typo of a real English word, return only the corrected spelling. Do not explain or elaborate. Return just the corrected word. Do not return anything else. Do not include formatting, explanations, or metadata. Return only the expected value based on the rules above.`,
+            },
+          ],
+        }),
+      });
 
-  //     const reader = response.body?.getReader();
-  //     if (!reader) {
-  //       console.error("No reader found on response");
-  //       throw new Error("No response body");
-  //     }
-  //     const decoder = new TextDecoder();
-  //     let buffer = "";
-  //     let result = "";
+      const reader = response.body?.getReader();
+      if (!reader) {
+        console.error("No reader found on response");
+        throw new Error("No response body");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let result = "";
 
-  //     while (true) {
-  //       const { done, value } = await reader.read();
-  //       if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-  //       buffer += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true });
 
-  //       let lineEnd;
-  //       while ((lineEnd = buffer.indexOf("\n")) !== -1) {
-  //         const line = buffer.slice(0, lineEnd).trim();
-  //         buffer = buffer.slice(lineEnd + 1);
+        let lineEnd;
+        while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, lineEnd).trim();
+          buffer = buffer.slice(lineEnd + 1);
 
-  //         if (line.startsWith("data: ")) {
-  //           const json = line.slice(6);
-  //           if (json === "[DONE]") break;
+          if (line.startsWith("data: ")) {
+            const json = line.slice(6);
+            if (json === "[DONE]") break;
 
-  //           try {
-  //             const parsed = JSON.parse(json);
-  //             const content = parsed.choices?.[0]?.delta?.content;
-  //             if (content) {
-  //               result += content;
-  //               // below is called batching in react
-  //               setExample((prev) => prev + content);
-  //             }
-  //           } catch (err) {
-  //             console.warn("Failed to parse chunk:", err);
-  //           }
-  //         }
-  //       }
-  //     }
+            try {
+              const parsed = JSON.parse(json);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                result += content;
+              }
+            } catch (err) {
+              console.warn("Failed to parse chunk:", err);
+            }
+          }
+        }
+      }
 
-  //     return result;
-  //   },
-  //   onMutate: () => {
-  //     setIsLoadingExample(true);
-  //     setExample("");
-  //   },
-  //   onSuccess: () => {
-  //     setIsLoadingExample(false);
-  //     toast.error("Word you entered cannot be found");
-  //   },
-  //   onError: (err) => {
-  //     console.error("Failed fetching:", err);
-  //     toast.error("Failed to fetch example");
-  //   },
-  // });
+      return result;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+    },
+    onSuccess: () => {
+      setIsLoading(false);
+    },
+    onError: (err) => {
+      console.error("Failed fetching:", err);
+      toast.error("Failed to fetch example");
+    },
+  });
 
-  function addWord() {
-    const getUserData = word.trim().toLowerCase();
-    setShowWord(getUserData);
-    // add object structure
-    const userStructure = {
-      word: getUserData,
-      definition: "",
-      added_on: new Date().toLocaleDateString(),
-      is_practiced: false,
-      example: "",
-    };
+  async function addWord() {
+    try {
+      // get input as a source
+      const getUserData = word.trim().toLowerCase();
+      // validate the inputted word
+      const validate = await validateWord(getUserData);
+      // if the returned validation is equivalent to undefined which is the result of the prompt, then dont show the dialog as the open state is false and return toast error and just return
+      if (validate.trim().toLowerCase() === "undefined") {
+        setIsOpen(false);
+        toast.error("Word you entered is not found");
+        return;
+      }
+      // else if it's not a random word, then set the showWord by using the inputted word
+      setShowWord(validate.toLocaleLowerCase());
+      // add object structure
+      const userStructure = {
+        word: validate.toLocaleLowerCase(),
+        definition: "",
+        added_on: new Date().toLocaleDateString(),
+        is_practiced: false,
+        example: "",
+      };
 
-    // check if userStructure is empty
-    if (!userStructure.word) {
+      // check if userStructure is empty
+      if (!userStructure.word) {
+        setIsLoading(true);
+        setTimeout(() => {
+          toast.error("Cannot be  empty!");
+          setIsOpen(false);
+          setIsLoading(false);
+        }, 200);
+        return;
+      }
+
+      // check if the word already exists. use some to check inside array of object and not includes
+      if (wordBank.some((word) => word.word === userStructure.word )) {
+        setIsLoading(true);
+        setTimeout(() => {
+          toast.warning(`${userStructure.word} already exists!`);
+          setIsOpen(false);
+          setIsLoading(false);
+          setWord("");
+        }, 500);
+        return;
+      }
+
+      // add exisiting words from wordBank and add new words if there is any from userStructure
+      const addWords = [...wordBank, userStructure];
+      // then set the wordBank. This will return multiple data
       setIsLoading(true);
       setTimeout(() => {
-        toast.error("Cannot be  empty!");
-        setIsOpen(false);
+        setWordBank(addWords);
+        localStorage.setItem("user", JSON.stringify(addWords));
+        toast.success(`${userStructure.word} added successfully!`);
+        setIsOpen(!isOpen);
         setIsLoading(false);
-      }, 200);
-      return;
-    }
-
-    if(userStructure.word === 'undefined') {
-      setIsLoading(true);
-      setTimeout(() => {
-        toast.error("Word cannot be found");
-        setIsOpen(false);
-        setIsLoading(false);
-      }, 200);
-      return;
-    }
-
-    // check if the word already exists. use some to check inside array of object and not includes
-    if (wordBank.some((word) => word.word === userStructure.word)) {
-      setIsLoading(true);
-      setTimeout(() => {
-        toast.warning(`${userStructure.word} already exists!`);
-        setIsOpen(false);
-        setIsLoading(false);
+        // clear input
         setWord("");
       }, 500);
-      return;
+    } catch (error) {
+      console.error("error adding new word", error);
     }
-
-    // add exisiting words from wordBank and add new words if there is any from userStructure
-    const addWords = [...wordBank, userStructure];
-    // then set the wordBank. This will return multiple data
-    setIsLoading(true);
-    setTimeout(() => {
-      setWordBank(addWords);
-      localStorage.setItem("user", JSON.stringify(addWords));
-      toast.success(`${userStructure.word} added successfully!`);
-      setIsOpen(!isOpen);
-      setIsLoading(false);
-      // clear input
-      setWord("");
-    }, 500);
   }
 
   async function addDefinition() {
     try {
+      // i think we can just directly use word state instead of using showword state
       const addDifficulty = await generateDifficulty(showWord);
       const addPartsOfSpeech = await generatePartsOfSpeech(showWord);
       // get the words from words stored in array
@@ -527,17 +526,15 @@ const GetWord = () => {
               onChange={(e) => setWord(e.target.value)}
               value={word}
             />
-            <Dialog.Root open={isOpen} onChange={setIsOpen}>
-              <Dialog.Trigger>
-                {/* need a condition in which it shows error or words cannot be found if users enter random words that can't be found in English */}
-                <Button
-                  className="mt-3"
-                  onClick={() => addWord()}
-                  loading={isLoading}
-                >
-                  Add Word
-                </Button>
-              </Dialog.Trigger>
+            <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+              {/* need a condition in which it shows error or words cannot be found if users enter random words that can't be found in English */}
+              <Button
+                className="mt-3"
+                onClick={() => addWord()}
+                loading={isLoading}
+              >
+                Add Word
+              </Button>
               <Dialog.Content maxWidth="450px">
                 <Dialog.Title className="text-center">
                   Word Added Successfully✨

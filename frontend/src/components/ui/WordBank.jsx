@@ -128,7 +128,7 @@ export const WordBank = () => {
                     </div>
                   </Dialog.Trigger>
                   {isDelete && (
-                    <Dialog.Content maxWidth="350px" aria-describedby={undefined}>
+                    <Dialog.Content maxWidth="350px">
                       <Dialog.Title className="text-center">
                         Are you sure you want to delete this word?
                       </Dialog.Title>
