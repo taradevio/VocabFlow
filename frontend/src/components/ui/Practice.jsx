@@ -248,10 +248,10 @@ const GeneratePractice = () => {
       )}
 
       {/* prioritise words */}
-      <div className="flex items-center gap-2 mt-5">
+      {/* <div className="flex items-center gap-2 mt-5">
         <Switch />
         <p className="text-sm">Prioritize unpracticed words</p>
-      </div>
+      </div> */}
 
       {/* shuffle words */}
       <div className="flex items-center gap-2 mt-5">

@@ -13,7 +13,7 @@ export const Hero = () => {
           Build your personal word bank, get daily reminders, and practice your
           English
         </p>
-        <Button />
+        <Button name="Try Now" />
 
         <div className="w-[300px] pt-10 mx-auto block sm:hidden">
             <img src="/mobile-hero.png" alt="hero image" className="w-full object-cover"/>

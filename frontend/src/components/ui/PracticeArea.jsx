@@ -13,6 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { PracticeContext } from "../../context/PracticeContext";
+import ConfettiExplosion from "react-confetti-explosion";
 import { useContext, useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
@@ -31,9 +32,11 @@ const GeneratePracticeArea = () => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [isShuffled, setIsShuffled] = useState([]);
   const [userAnswer, setUserAnswer] = useState("");
-  const [AIAnswer, setAIAnswer] = useState("")
+  const [AIAnswer, setAIAnswer] = useState("");
   const [showAnswer, setShowAnswer] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [isFinish, setIsFinish] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // useEffect(() => {
   //   if (words) {
@@ -58,93 +61,108 @@ const GeneratePracticeArea = () => {
   function handleNext() {
     setWordIndex((prev) => prev + 1);
     setIsSubmit(false);
-    setAIAnswer("")
-    setUserAnswer("")
+    setAIAnswer("");
+    setUserAnswer("");
   }
 
-  // const { mutate: generateWritingPrompt } = useMutation({
-  //   mutationFn: async (sentence) => {
-  //     const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         // the structure below has to be the same as defined in openrouter
-  //         messages: [
-  //           {
-  //             role: "user",
-  //             content: `You are an expert English teacher and writing assistant. Given the following sentence written by a learner, do the following: Correct the sentence for grammar, punctuation, and clarity. If it's a creative writing sentence (like a story or imaginative expression), preserve the original style and tone while still correcting errors appropriately. Briefly explain the correction in simple, beginner-friendly English (no technical jargon). If there is no error, briefly explain why there is no error. Sentence to correct: ${sentence}. `,
-  //           },
-  //         ],
-  //       }),
-  //     });
+  function handleFinish() {
+    setIsFinish(true);
 
-  //     const reader = response.body?.getReader();
-  //     if (!reader) {
-  //       console.error("No reader found on response");
-  //       throw new Error("No response body");
-  //     }
-  //     const decoder = new TextDecoder();
-  //     let buffer = "";
-  //     let result = "";
+    setTimeout(() => {
+      setShowConfetti(true);
+    }, 500);
+  }
 
-  //     while (true) {
-  //       const { done, value } = await reader.read();
-  //       if (done) break;
+  const { mutate: generateFeedback } = useMutation({
+    mutationFn: async (sentence) => {
+      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // the structure below has to be the same as defined in openrouter
+          messages: [
+            {
+              role: "user",
+              content: `You are an expert English teacher and writing assistant. Given the following sentence written by a learner, do the following: Correct the sentence for grammar, punctuation, and clarity. If it's a creative writing sentence (like a story or imaginative expression), preserve the original style and tone while still correcting errors appropriately. Briefly explain the correction in simple, beginner-friendly English (no technical jargon). If there is no error, briefly explain why there is no error. Sentence to correct: ${sentence}. `,
+            },
+          ],
+        }),
+      });
 
-  //       buffer += decoder.decode(value, { stream: true });
+      const reader = response.body?.getReader();
+      if (!reader) {
+        console.error("No reader found on response");
+        throw new Error("No response body");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let result = "";
 
-  //       let lineEnd;
-  //       while ((lineEnd = buffer.indexOf("\n")) !== -1) {
-  //         const line = buffer.slice(0, lineEnd).trim();
-  //         buffer = buffer.slice(lineEnd + 1);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-  //         if (line.startsWith("data: ")) {
-  //           const json = line.slice(6);
-  //           if (json === "[DONE]") break;
+        buffer += decoder.decode(value, { stream: true });
 
-  //           try {
-  //             const parsed = JSON.parse(json);
-  //             const content = parsed.choices?.[0]?.delta?.content;
-  //             if (content) {
-  //               result += content;
-  //               // below is called batching in react
-  //               setAIAnswer((prev) => prev + content);
-  //             }
-  //           } catch (err) {
-  //             console.warn("Failed to parse chunk:", err);
-  //           }
-  //         }
-  //       }
-  //     }
+        let lineEnd;
+        while ((lineEnd = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, lineEnd).trim();
+          buffer = buffer.slice(lineEnd + 1);
 
-  //     return result;
-  //   },
-  //   onMutate: () => {
-  //     setSubmitLoading(true);
-  //     setAIAnswer("");
-  //   },
-  //   onSuccess: () => {
-  //     setSubmitLoading(false);
-  //     setIsSubmit(true)
-  //     toast.success("Feedback sucessfully generated!");
-  //   },
-  //   onError: (err) => {
-  //     toast.error("Failed fetching:", err);
-  //     console.log("Failed to fetch definition");
-  //   },
-  // });
+          if (line.startsWith("data: ")) {
+            const json = line.slice(6);
+            if (json === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(json);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                result += content;
+                // below is called batching in react
+                setAIAnswer((prev) => prev + content);
+              }
+            } catch (err) {
+              console.warn("Failed to parse chunk:", err);
+            }
+          }
+        }
+      }
+
+      return result;
+    },
+    onMutate: () => {
+      setSubmitLoading(true);
+      setAIAnswer("");
+    },
+    onSuccess: () => {
+      setSubmitLoading(false);
+      setIsSubmit(true);
+      toast.success("Feedback sucessfully generated!");
+    },
+    onError: (err) => {
+      toast.error("Failed fetching:", err);
+      console.log("Failed to fetch definition");
+    },
+  });
+
+  // if now words are found in the difficulty return error so that users wont proceed to the practice area
 
   return (
     <div className="ps-5 pe-5">
       <div className="mt-5">
         <div className="flex justify-between">
-          <p className="font-medium">Question {wordIndex + 1} of {words.length}</p>
+          <p className="font-medium">
+            Question {wordIndex + 1} of {words.length}
+          </p>
           <p>Practice Session</p>
         </div>
         <div className="py-2">
-          <Progress value={((wordIndex + 1) / words.length) * 100} color="crimson" />
+          <Progress
+            value={((wordIndex + 1) / words.length) * 100}
+            color="crimson"
+          />
         </div>
       </div>
 
@@ -216,10 +234,7 @@ const GeneratePracticeArea = () => {
           {submitLoading ? (
             <Spinner />
           ) : (
-            <Button
-              onClick={() => setIsSubmit(!isSubmit)}
-              disabled={isSubmit}
-            >
+            <Button onClick={() => setIsSubmit(!isSubmit)} disabled={isSubmit}>
               Submit
             </Button>
           )}
@@ -229,8 +244,31 @@ const GeneratePracticeArea = () => {
               <Button onClick={() => handleNext()}>Next</Button>
             </div>
           )}
+
+          {wordIndex === words.length - 1 && (
+            <div>
+              <Button
+                onClick={() => {
+                  handleFinish();
+                }}
+              >
+                Finish
+              </Button>
+            </div>
+          )}
         </Flex>
       </div>
+
+      {showConfetti && (
+        <div className="absolute top-0 left-0 w-screen h-screen pointer-events-none items-center z-50 flex justify-center">
+          <ConfettiExplosion
+            width={800}
+            particleCount={250}
+            force={0.8}
+            height={window.innerHeight}
+          />
+        </div>
+      )}
 
       {AIAnswer && (
         <div className="my-5">

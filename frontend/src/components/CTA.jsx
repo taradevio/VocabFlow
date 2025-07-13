@@ -10,7 +10,7 @@ export const CTA = () => {
           Now in beta — try the system designed to make vocab stick through
           writing, feedback, and habit.
         </p>
-        <Button />
+        <Button name="Try Now"/>
       </div>
     </section>
   );
