@@ -40,7 +40,6 @@ const GetWord = () => {
   const [isLoadingDifficulty, setIsLoadingDifficulty] = useState(false);
   const [isLoadingPartsOfSpeech, setIsLoadingPartsOfSpeech] = useState(false);
   const [finalLoading, setFinalLoading] = useState(false);
-  useState(false);
 
   useEffect(() => {
     // on mount check local storage and get the words
@@ -414,6 +413,17 @@ const GetWord = () => {
     try {
       // get input as a source
       const getUserData = word.trim().toLowerCase();
+
+      // check if userStructure is empty
+      if (!getUserData) {
+        setIsLoading(true);
+        setTimeout(() => {
+          toast.error("Cannot be  empty!");
+          setIsOpen(false);
+          setIsLoading(false);
+        }, 200);
+        return;
+      }
       // validate the inputted word
       const validate = await validateWord(getUserData);
       // if the returned validation is equivalent to undefined which is the result of the prompt, then dont show the dialog as the open state is false and return toast error and just return
@@ -433,19 +443,8 @@ const GetWord = () => {
         example: "",
       };
 
-      // check if userStructure is empty
-      if (!userStructure.word) {
-        setIsLoading(true);
-        setTimeout(() => {
-          toast.error("Cannot be  empty!");
-          setIsOpen(false);
-          setIsLoading(false);
-        }, 200);
-        return;
-      }
-
       // check if the word already exists. use some to check inside array of object and not includes
-      if (wordBank.some((word) => word.word === userStructure.word )) {
+      if (wordBank.some((word) => word.word === userStructure.word)) {
         setIsLoading(true);
         setTimeout(() => {
           toast.warning(`${userStructure.word} already exists!`);

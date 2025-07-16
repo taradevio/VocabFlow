@@ -10,7 +10,7 @@ export const SidebarMobile = () => {
         </div>
         <div className="flex justify-between items-center">
           <div>
-            <h2>Dashboard</h2>
+            <h2>Analytics</h2>
           </div>
           <div>
             <DropdownMenu.Root on>
@@ -23,7 +23,7 @@ export const SidebarMobile = () => {
 
               <DropdownMenu.Content>
                 <DropdownMenu.Item>
-                  <NavLink to="/dashboard">Dashboard</NavLink>
+                  <NavLink to="/dashboard/analytics">Analytics</NavLink>
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Item>

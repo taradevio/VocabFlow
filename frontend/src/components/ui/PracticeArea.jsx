@@ -85,7 +85,30 @@ const GeneratePracticeArea = () => {
           messages: [
             {
               role: "user",
-              content: `You are an expert English teacher and writing assistant. Given the following sentence written by a learner, do the following: Correct the sentence for grammar, punctuation, and clarity. If it's a creative writing sentence (like a story or imaginative expression), preserve the original style and tone while still correcting errors appropriately. Briefly explain the correction in simple, beginner-friendly English (no technical jargon). If there is no error, briefly explain why there is no error. Sentence to correct: ${sentence}. `,
+              content: `Please evaluate ${sentence} for grammar, clarity, and overall coherence. If it is already grammatically correct, cohesive, and clear, return it as-is and include a short, easy-to-understand explanation stating that no edits are needed If there are grammar mistakes, return an easy-to-understand explanation as if you were explaining to a person who has just learned English. If it can be improved (e.g., awkward phrasing, redundancy, grammar mistakes, or lack of clarity), provide:
+              
+              A corrected version of the sentence,
+              A clear and helpful explanation written in the style of an IELTS writing examiner: 
+                Professional but understandable,
+                Explains improvements in terms of grammar, coherence, conciseness, or fluency,
+                Avoids first-person ("I") and uses neutral academic tone
+                
+              Format:
+              Corrected sentence (if applicable): 
+              [your corrected sentence]
+              
+              Explanation:
+              [short explanation in IELTS-style]
+              
+              If the sentence is fine:
+              Correct sentence:
+              [same sentence]
+              
+              Explanation:
+              [explain that no revision is needed + why the sentence works] 
+              
+              return all the explanation in Indonesian language.
+              `,
             },
           ],
         }),
@@ -234,7 +257,10 @@ const GeneratePracticeArea = () => {
           {submitLoading ? (
             <Spinner />
           ) : (
-            <Button onClick={() => setIsSubmit(!isSubmit)} disabled={isSubmit}>
+            <Button
+              onClick={() => generateFeedback(userAnswer)}
+              disabled={isSubmit}
+            >
               Submit
             </Button>
           )}

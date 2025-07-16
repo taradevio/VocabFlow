@@ -10,6 +10,7 @@ import { Practice } from "./components/ui/Practice.jsx";
 import { Settings } from "./components/ui/Settings.jsx";
 import { PracticeArea } from "./components/ui/PracticeArea.jsx";
 import { Login } from "./components/Login.jsx";
+import { Analytics } from "./components/ui/Analytics.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="analytics" element={<Analytics />} />
           <Route path="add-word" element={<AddWord />} />
           <Route path="word-bank" element={<WordBank />} />
           <Route path="practice" element={<Practice />} />

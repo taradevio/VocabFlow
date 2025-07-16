@@ -35,7 +35,7 @@ export const Sidebar = () => {
           <ul className="grid grid-col-1 gap-15 content-center">
 
             <li className="cursor-pointer">
-              <NavLink to="/dashboard">Dashboard</NavLink>
+              <NavLink to="/dashboard/analytics">Analytics</NavLink>
             </li>
             <li className="cursor-pointer">
               <NavLink to="/dashboard/add-word">Add Word</NavLink>

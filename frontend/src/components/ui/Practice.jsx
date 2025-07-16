@@ -34,7 +34,7 @@ const GeneratePractice = () => {
   // const [isMedium, setIsMedium] = useState(false);
   // const [isHard, setIsHard] = useState(false);
   // const [isShuffle, setIsShuffle] = useState(false);
-  const [isValue, setSelectedValue] = useState(0);
+  const [selectedValue, setSelectedValue] = useState(0);
 
   // use usenavigate to move to another page
   const navigate = useNavigate();
@@ -46,9 +46,11 @@ const GeneratePractice = () => {
     setSelectedDifficulty,
     isShuffle,
     setIsShuffle,
+    customNumber,
+    setCustomNumber,
   } = useContext(PracticeContext);
 
-  const getWords = JSON.parse(localStorage.getItem("user"));
+  const getWords = JSON.parse(localStorage.getItem("user") || '[]');
 
   useEffect(() => {
     console.log(words);
@@ -57,7 +59,34 @@ const GeneratePractice = () => {
   const filteredWords = getWords.filter((word) =>
     selectedDifficulty.includes(word.difficulty)
   );
+
   const shuffle = [...filteredWords].sort(() => Math.random() - 0.5);
+  const shuffledCustomWords = shuffle.slice(0, customNumber);
+  const unshuffledCustomWords = filteredWords.slice(0, customNumber);
+  console.log(unshuffledCustomWords)
+
+  const shuffledWords = shuffle.slice(0, selectedValue);
+  const unshuffledWords = filteredWords.slice(0, selectedValue);
+
+  function startPractice() {
+    setIsLoading(true);
+    if (isShuffle && customNumber) {
+      setWords(shuffledCustomWords);
+    } else if (!isShuffle && customNumber) {
+      setWords(unshuffledCustomWords);
+    } else if (isShuffle && selectedValue) {
+      setWords(shuffledWords);
+    } else if(!isShuffle && selectedValue){
+      setWords(unshuffledWords);
+    } else {
+      setWords(shuffle);
+    }
+    setTimeout(() => {
+      // call navigate to practice area. the practice area below is the name of the endpoint created in main.jsx
+      navigate("practice-area");
+      setIsLoading(false);
+    }, 1000);
+  }
 
   // const { mutate: generateWritingPrompt } = useMutation({
   //   mutationFn: async (word) => {
@@ -229,7 +258,7 @@ const GeneratePractice = () => {
           <div className="flex gap-5 pt-3">
             <RadioCards.Root
               size="1"
-              onValueChange={(value) => setSelectedValue(value)}
+              onValueChange={(value) => setSelectedValue(Number(value))}
             >
               <Flex gap="3">
                 <RadioCards.Item value="5">
@@ -241,6 +270,18 @@ const GeneratePractice = () => {
                 <RadioCards.Item value="15">
                   <Text>15</Text>
                 </RadioCards.Item>
+                <div className="text-center">
+                  <input
+                    type="number"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      setCustomNumber(Number(inputValue));
+                    }}
+                    className="border-1 w-[70px] h-full rounded-md text-center"
+                    min="0"
+                    placeholder="custom"
+                  />
+                </div>
               </Flex>
             </RadioCards.Root>
           </div>
@@ -265,17 +306,7 @@ const GeneratePractice = () => {
         {/* when users click the start practice, ai will generate the prompt of what the users should write in the practice area */}
         <Button
           onClick={() => {
-            setIsLoading(true);
-            if (isShuffle) {
-              setWords(shuffle);
-            } else {
-              setWords(getWords);
-            }
-            setTimeout(() => {
-              // call navigate to practice area. the practice area below is the name of the endpoint created in main.jsx
-              navigate("practice-area");
-              setIsLoading(false);
-            }, 1000);
+            startPractice();
           }}
           loading={isLoading}
         >
