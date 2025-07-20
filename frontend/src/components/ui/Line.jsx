@@ -1,4 +1,5 @@
 import { Line } from "react-chartjs-2";
+import { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   LineElement,
@@ -20,22 +21,34 @@ ChartJS.register(
 );
 
 export const LineChart = () => {
+  const [practice, setPractice] = useState([]);
+
+  useEffect(() => {
+    const getData = JSON.parse(localStorage.getItem("user") || "[]");
+    const practiceResult = getData.filter((word) => word.is_practiced).length;
+    const today = new Date().getDay();
+    console.log(today)
+    const dayArr = Array(7).fill(0);
+    dayArr[today] = practiceResult;
+    setPractice(dayArr);
+  }, []);
+
   return (
     <Line
       data={{
         labels: [
+          "Sunday",
           "Monday",
           "Tuesday",
           "Wednesday",
           "Thursday",
           "Friday",
           "Saturday",
-          "Sunday",
         ],
         datasets: [
           {
             label: "Person A",
-            data: [20, 63, 93, 99, 46, 54, 51],
+            data: practice,
             tension: 0.4,
             borderWidth: 1,
             borderColor: "rgba(75, 192, 192, 1)",
@@ -52,7 +65,7 @@ export const LineChart = () => {
         },
         interaction: {
           intersect: false,
-        }
+        },
       }}
     />
   );

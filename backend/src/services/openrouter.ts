@@ -33,7 +33,7 @@ export const fetchOpenRouter = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "moonshotai/kimi-k2:free",
+        model: "qwen/qwen3-14b:free",
         messages,
         stream: true,
       }),

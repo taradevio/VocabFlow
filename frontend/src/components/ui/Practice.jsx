@@ -63,7 +63,7 @@ const GeneratePractice = () => {
   const shuffle = [...filteredWords].sort(() => Math.random() - 0.5);
   const shuffledCustomWords = shuffle.slice(0, customNumber);
   const unshuffledCustomWords = filteredWords.slice(0, customNumber);
-  console.log(unshuffledCustomWords)
+  
 
   const shuffledWords = shuffle.slice(0, selectedValue);
   const unshuffledWords = filteredWords.slice(0, selectedValue);

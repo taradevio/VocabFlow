@@ -27,7 +27,8 @@ export function PracticeArea() {
 }
 
 const GeneratePracticeArea = () => {
-  const { selectedDifficulty, words, isShuffle } = useContext(PracticeContext);
+  const { selectedDifficulty, words, isShuffle, setWords } =
+    useContext(PracticeContext);
   const [wordIndex, setWordIndex] = useState(0);
   const [isSubmit, setIsSubmit] = useState(false);
   const [isShuffled, setIsShuffled] = useState([]);
@@ -67,7 +68,6 @@ const GeneratePracticeArea = () => {
 
   function handleFinish() {
     setIsFinish(true);
-
     setTimeout(() => {
       setShowConfetti(true);
     }, 500);
@@ -157,11 +157,25 @@ const GeneratePracticeArea = () => {
     },
     onMutate: () => {
       setSubmitLoading(true);
-      setAIAnswer("");
+      setIsSubmit(true);
     },
     onSuccess: () => {
       setSubmitLoading(false);
-      setIsSubmit(true);
+      // get words taken right from local instead of using words from context
+      // const getData = JSON.parse(localStorage.getItem("user") || "[]");
+      // const updateIsPractice = getData.map((word) => {
+      //   if (word.word === currentWord.word) {
+      //     return {
+      //       ...word,
+      //       is_practiced: true,
+      //     };
+      //   } else {
+      //     return word;
+      //   }
+      // });
+
+      // localStorage.setItem("user", JSON.stringify(updateIsPractice));
+      // setWords(updateIsPractice);
       toast.success("Feedback sucessfully generated!");
     },
     onError: (err) => {
@@ -259,6 +273,7 @@ const GeneratePracticeArea = () => {
           ) : (
             <Button
               onClick={() => generateFeedback(userAnswer)}
+              // onClick={() => setIsSubmit(!isSubmit)}
               disabled={isSubmit}
             >
               Submit
@@ -271,7 +286,7 @@ const GeneratePracticeArea = () => {
             </div>
           )}
 
-          {wordIndex === words.length - 1 && (
+          {isSubmit && wordIndex === words.length - 1 && (
             <div>
               <Button
                 onClick={() => {

@@ -132,7 +132,7 @@ const GetWord = () => {
           messages: [
             {
               role: "user",
-              content: `Analyze the word ${word}. Return its part(s) of speech based on common modern usage.If the word has only one common part of speech, return just that. If it has multiple equally common parts of speech, return all of them with a comma. Do not include definitions or explanations`,
+              content: `Analyze the word ${word}. Return its part(s) of speech based on common modern usage.If the word has only one common part of speech, return just that. If it has multiple equally common parts of speech, return all of them with a comma. Do not include definitions or explanations. There are 8 parts of speech: verb, noun, pronoun, adjective, adverb, preposition, conjunction, or interjection.`,
             },
           ],
         }),
@@ -440,6 +440,7 @@ const GetWord = () => {
         definition: "",
         added_on: new Date().toLocaleDateString(),
         is_practiced: false,
+        last_practiced: null,
         example: "",
       };
 

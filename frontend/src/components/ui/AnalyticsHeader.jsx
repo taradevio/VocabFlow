@@ -21,13 +21,13 @@ export const Header = () => {
   ];
 
   const days = [
+    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
     "Thursday",
     "Friday",
     "Saturday",
-    "Sunday",
   ];
 
   const fullDate = `${days[day]}, ${months[month]} ${newDate} ${year}`;

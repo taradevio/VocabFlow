@@ -27,7 +27,7 @@ const Why = () => {
   });
 
   return (
-    <section>
+    <section id="benefits">
       <div className="py-10">
         <h2 className="text-2xl sm:text-6xl font-bold text-center">
           Why It Works <span className="text-[#4F46E5]">(Better)</span>

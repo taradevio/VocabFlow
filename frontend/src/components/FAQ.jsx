@@ -37,7 +37,7 @@ const GetQuestions = () => {
   };
 
   return (
-    <section>
+    <section id="faqs">
       {error && <p>{error.message}</p>}
       <div>
         <h2 className="text-2xl sm:text-6xl font-bold text-center pb-5">

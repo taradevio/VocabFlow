@@ -27,7 +27,7 @@ const GetFeatures = () => {
   });
 
   return (
-    <section>
+    <section id="features">
       <div className="py-10">
         <div className="text-2xl sm:text-6xl font-bold text-center">
           <h2>Keep forgetting vocabs? Inconsistent practice?</h2>

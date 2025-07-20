@@ -17,6 +17,9 @@ export const Analytics = () => {
     return getWordBank.filter((word) => word.added_on === today).length;
   }, [getWordBank, today]);
 
+  const todayPractice = getWordBank.filter((word) => word.is_practiced === true && word.added_on === today).length
+  console.log(todayPractice)
+
   return (
     <div className="ps-5 pe-5">
       <Header />
@@ -30,8 +33,8 @@ export const Analytics = () => {
 
         <div className="border-1 rounded-md px-3 py-10 flex-1 text-center">
           <h1 className="text-xl font-medium">Words Practiced</h1>
-          <span className="text-5xl font-bold inline-block py-2">5</span>
-          <p>Out of 20 today</p>
+          <span className="text-5xl font-bold inline-block py-2">{todayPractice}</span>
+          <p>Out of {getWordBank.length} today</p>
         </div>
 
         <div className="border-1 rounded-md px-3 py-10 flex-1 text-center">
@@ -47,7 +50,7 @@ export const Analytics = () => {
           <span className="text-5xl font-bold inline-block py-2">
             {getWordBank.length}
           </span>
-          <p>in vocabulary</p>
+          <p>in Word Bank</p>
         </div>
       </div>
 
