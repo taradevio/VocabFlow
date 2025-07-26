@@ -33,7 +33,7 @@ export const fetchOpenRouter = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "qwen/qwen3-14b:free",
+        model: "qwen/qwen3-235b-a22b-2507:free",
         messages,
         stream: true,
       }),
