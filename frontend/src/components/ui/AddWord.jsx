@@ -50,7 +50,7 @@ const GetWord = () => {
   // generate difficulty
   const { mutateAsync: generateDifficulty } = useMutation({
     mutationFn: async (word) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+      const response = await fetch("https://vocab.nandayavanets.workers.dev/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ const GetWord = () => {
   // generate parts of speech
   const { mutateAsync: generatePartsOfSpeech } = useMutation({
     mutationFn: async (word) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+      const response = await fetch("https://vocab.nandayavanets.workers.dev/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -194,7 +194,7 @@ const GetWord = () => {
   // mutation for definition
   const { mutate: generateDefinition } = useMutation({
     mutationFn: async (word) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+      const response = await fetch("https://vocab.nandayavanets.workers.dev/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -268,7 +268,7 @@ const GetWord = () => {
   // generate example
   const { mutate: generateExample } = useMutation({
     mutationFn: async (word) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+      const response = await fetch("https://vocab.nandayavanets.workers.dev/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -342,7 +342,7 @@ const GetWord = () => {
   // validate if no words are not found
   const { mutateAsync: validateWord } = useMutation({
     mutationFn: async (word) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
+      const response = await fetch("https://vocab.nandayavanets.workers.dev/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -15,9 +15,9 @@ import {
 import { PracticeContext } from "../../context/PracticeContext";
 import ConfettiExplosion from "react-confetti-explosion";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 const queryClient = new QueryClient();
-
 export function PracticeArea() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -38,12 +38,20 @@ const GeneratePracticeArea = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [isFinish, setIsFinish] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (words) {
-  //     words[wordIndex];
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (words.length) return;
+    try {
+      const wordsOnReload = localStorage.getItem("user") || "[]";
+      const parseWords = wordsOnReload ? JSON.parse(wordsOnReload) : [];
+      if (Array.isArray(parseWords)) {
+        setWords(parseWords);
+      }
+    } catch {
+      setWords([]);
+    }
+  }, [words.length, setWords]);
 
   const currentWord = words[wordIndex];
 
@@ -75,44 +83,82 @@ const GeneratePracticeArea = () => {
 
   const { mutate: generateFeedback } = useMutation({
     mutationFn: async (sentence) => {
-      const response = await fetch("http://127.0.0.1:8787/api/openrouter", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          // the structure below has to be the same as defined in openrouter
-          messages: [
-            {
-              role: "user",
-              content: `Please evaluate ${sentence} for grammar, clarity, and overall coherence. If it is already grammatically correct, cohesive, and clear, return it as-is and include a short, easy-to-understand explanation stating that no edits are needed If there are grammar mistakes, return an easy-to-understand explanation as if you were explaining to a person who has just learned English. If it can be improved (e.g., awkward phrasing, redundancy, grammar mistakes, or lack of clarity), provide:
-              
-              A corrected version of the sentence,
-              A clear and helpful explanation written in the style of an IELTS writing examiner: 
-                Professional but understandable,
-                Explains improvements in terms of grammar, coherence, conciseness, or fluency,
-                Avoids first-person ("I") and uses neutral academic tone
-                
-              Format:
-              Corrected sentence (if applicable): 
-              [your corrected sentence]
-              
-              Explanation:
-              [short explanation in IELTS-style]
-              
-              If the sentence is fine:
-              Correct sentence:
-              [same sentence]
-              
-              Explanation:
-              [explain that no revision is needed + why the sentence works] 
-              
-              return all the explanation in Indonesian language.
+      const response = await fetch(
+        "https://vocab.nandayavanets.workers.dev/api/gemini",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // the structure below has to be the same as defined in openrouter
+            messages: [
+              {
+                role: "user",
+                content: `Peran & Gaya
+Kamu adalah pelatih grammar bahasa Inggris yang ramah untuk penutur bahasa Indonesia. Jelaskan dengan bahasa sederhana, ringkas (≤ 90 kata), tanpa menggurui, dan selalu sebutkan konsep grammar yang relevan secara singkat. Sertakan 1 analogi pendek untuk memudahkan pemahaman. Semua penjelasan wajib dalam Bahasa Indonesia.
+
+Tugas
+Evaluasi input pengguna ${sentence} (bisa kalimat atau frasa—jangan memaksa jadi kalimat jika frasa sudah benar secara fungsi).
+
+Aturan Keputusan
+
+Jika sudah benar (grammar, kejelasan, dan koheren):
+
+Kembalikan apa adanya.
+
+Beri alasan singkat kenapa sudah pas (sebut konsep: mis. subject–verb agreement, article, preposition, tense, dll).
+
+Opsional: beri catatan register/nuansa (formal/harian) bila relevan.
+
+Jika perlu perbaikan (awkward/redundan/kurang jelas/salah grammar):
+
+Beri Versi Koreksi tunggal yang paling natural.
+
+Jelaskan singkat & mudah: apa yang dibetulkan + nama konsep.
+
+Tambahkan analogi 1 baris untuk konsepnya.
+
+Jika makna ambigu, tawarkan maks 2 opsi (A/B) dan jelaskan kapan dipakai (1 frasa per opsi).
+
+Jika sudah benar tapi bisa lebih natural:
+
+Tampilkan “Lebih natural” sebagai alternatif, lalu alasan singkat (fluency/conciseness).
+
+Gaya Bahasa
+
+Hindari jargon teknis yang berat.
+
+Tanpa orang pertama (“saya/aku”).
+
+Maks 3 poin atau ≤ 2 kalimat di bagian penjelasan.
+
+Format Keluaran (tetap)
+
+Hasil:
+
+Apa adanya: [kalau sudah benar] atau
+
+Koreksi: [kalau ada perbaikan]
+
+Lebih natural (opsional): [jika relevan]
+
+Penjelasan singkat: [2 kalimat atau ≤3 poin, sebut konsep grammar]
+
+Teori & Analogi: [1–2 baris; konsep + analogi micro]
+
+Opsi (jika ambigu): A: … | B: … (+ kapan dipakai)
+
+Contoh tag konsep yang boleh dipakai: subject–verb agreement, article (a/an/the), word choice/collocation, preposition of time/place, tense (Simple Present/Past/Perfect), parallelism, pronoun reference, modifier order.
+
+Contoh nada analogi (pola, bukan isi tetap):
+“Pakai the seperti menunjuk barang yang sudah ‘disepakati’; kayak bilang ‘itu yang tadi’.”
               `,
-            },
-          ],
-        }),
-      });
+              },
+            ],
+          }),
+        }
+      );
 
       const reader = response.body?.getReader();
       if (!reader) {
@@ -162,20 +208,20 @@ const GeneratePracticeArea = () => {
     onSuccess: () => {
       setSubmitLoading(false);
       // get words taken right from local instead of using words from context
-      // const getData = JSON.parse(localStorage.getItem("user") || "[]");
-      // const updateIsPractice = getData.map((word) => {
-      //   if (word.word === currentWord.word) {
-      //     return {
-      //       ...word,
-      //       is_practiced: true,
-      //     };
-      //   } else {
-      //     return word;
-      //   }
-      // });
+      const getData = JSON.parse(localStorage.getItem("user") || "[]");
+      const updateIsPractice = getData.map((word) => {
+        if (word.word === currentWord.word) {
+          return {
+            ...word,
+            is_practiced: true,
+          };
+        } else {
+          return word;
+        }
+      });
 
-      // localStorage.setItem("user", JSON.stringify(updateIsPractice));
-      // setWords(updateIsPractice);
+      localStorage.setItem("user", JSON.stringify(updateIsPractice));
+      setWords(updateIsPractice);
       toast.success("Feedback sucessfully generated!");
     },
     onError: (err) => {
@@ -183,6 +229,10 @@ const GeneratePracticeArea = () => {
       console.log("Failed to fetch definition");
     },
   });
+
+  const isAnswerEmpty = userAnswer.trim().length === 0;
+  const canSubmit = !isSubmit && !submitLoading && !isAnswerEmpty;
+  const canNext = isSubmit && !submitLoading && wordIndex < words.length - 1;
 
   // if now words are found in the difficulty return error so that users wont proceed to the practice area
 
@@ -272,25 +322,37 @@ const GeneratePracticeArea = () => {
             <Spinner />
           ) : (
             <Button
-              onClick={() => generateFeedback(userAnswer)}
+              onClick={() => {
+                const text = userAnswer.trim();
+                if (!text) {
+                  toast.error("Please enter a sentence!");
+                  return;
+                }
+                generateFeedback(text);
+              }}
               // onClick={() => setIsSubmit(!isSubmit)}
-              disabled={isSubmit}
+              disabled={!canSubmit}
             >
               Submit
             </Button>
           )}
           {/* if issubmit is true and wordindex is less than the contained words, show button */}
-          {isSubmit && wordIndex < words.length - 1 && (
+          {canNext && (
             <div>
               <Button onClick={() => handleNext()}>Next</Button>
             </div>
           )}
 
-          {isSubmit && wordIndex === words.length - 1 && (
+          {isSubmit && !submitLoading && wordIndex === words.length - 1 && (
             <div>
               <Button
                 onClick={() => {
                   handleFinish();
+                  toast.info("You will be redirected to your analytics page!")
+                  setTimeout(() => {
+                    navigate("/dashboard/analytics");
+                    localStorage.removeItem("practice_words")
+                  }, 5000);
                 }}
               >
                 Finish
